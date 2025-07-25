@@ -39,7 +39,7 @@ func handleConnection(conn net.Conn) {
 	// But we need to know how many bytes to read, we're going to read the size from the connection first.
 	// We're going to use binary.Read to read the size from the connection.
 
-	var size int64
+	var size int64 // -> this is the size of file sending from client.
 	if err := binary.Read(conn, binary.LittleEndian, &size); err != nil {
 		slog.Error("Error reading size bytes", slog.Any("error", err))
 	}

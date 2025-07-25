@@ -36,10 +36,10 @@ func handleConnection(conn net.Conn) {
 	for {
 		n, err := conn.Read(buff)
 		if err != nil {
-			if err.Error() != "EOF" {
-				slog.Error("Error reading into buffer", slog.Any("error", err))
+			if err.Error() == "EOF" {
+				break
 			}
-			break
+			slog.Error("Error reading into buffer", slog.Any("error", err))
 		}
 
 		fmt.Println("---------------------------------")

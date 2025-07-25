@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"crypto/rand"
+	"encoding/binary"
 	"io"
 	"log/slog"
 	"net"
@@ -16,14 +18,20 @@ func main() {
 	}
 	defer conn.Close()
 
-	file := make([]byte, 4000)
+	file := make([]byte, 10000)
 	_, err = io.ReadFull(rand.Reader, file)
 	if err != nil {
 		slog.Error("Error mocking file", slog.Any("error", err))
 		os.Exit(1)
 	}
 
-	n, err := conn.Write(file)
+	// First we tell to server the full size of the file will be
+	if err := binary.Write(conn, binary.LittleEndian, int64(len(file))); err != nil {
+		slog.Error("Error writing file to server", slog.Any("error", err))
+		os.Exit(1)
+	}
+	// Copy will copy to target chunk by chunk until find EOF
+	n, err := io.Copy(conn, bytes.NewReader(file))
 	if err != nil {
 		slog.Error("Error writing file to server", slog.Any("error", err))
 		os.Exit(1)

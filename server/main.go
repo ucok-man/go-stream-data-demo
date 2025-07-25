@@ -39,28 +39,20 @@ func handleConnection(conn net.Conn) {
 	// But we need to know how many bytes to read, we're going to read the size from the connection first.
 	// We're going to use binary.Read to read the size from the connection.
 
-	// IMPORTANT: this needs to be declared outside of the loop otherwise
-	// it will be redeclared on each iteration of the loop and the loop will never end because the size will always be 0
 	var size int64
 	if err := binary.Read(conn, binary.LittleEndian, &size); err != nil {
 		slog.Error("Error reading size bytes", slog.Any("error", err))
 	}
 
-	for {
-		_, err := io.CopyN(buff, conn, size)
-		if err != nil {
-			if err.Error() == "EOF" {
-				break
-			}
-			slog.Error("Error reading into buffer", slog.Any("error", err))
-		}
-
-		fmt.Println("---------------------------------")
-		fmt.Println("data chunk:")
-		fmt.Println(buff.Bytes())
-
+	_, err := io.CopyN(buff, conn, size)
+	if err != nil && err.Error() != "EOF" {
+		slog.Error("Error reading into buffer", slog.Any("error", err))
 	}
 
-	// fmt.Println("---------------------------------")
+	fmt.Println("---------------------------------")
+	fmt.Println("data chunk:")
+	fmt.Println(buff.Bytes())
+
+	fmt.Println("---------------------------------")
 	slog.Info("Finished reading data", slog.Any("size_bytes", size))
 }

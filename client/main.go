@@ -18,7 +18,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	file := make([]byte, 10000)
+	file := make([]byte, 1_000_000)
 	_, err = io.ReadFull(rand.Reader, file)
 	if err != nil {
 		slog.Error("Error mocking file", slog.Any("error", err))
